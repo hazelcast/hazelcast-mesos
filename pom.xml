@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast-mesos</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>hazelcast-mesos-executor</module>
+        <module>hazelcast-mesos-scheduler</module>
+        <module>hazelcast-mesos-dist</module>
+    </modules>
+    <packaging>pom</packaging>
+    <name>Hazelcast Mesos</name>
+    <description>Hazelcast Mesos Integration</description>
+    <url>http://www.hazelcast.com/</url>
+
+    <properties>
+        <main.basedir>${project.basedir}</main.basedir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jdk.version>1.6</jdk.version>
+        <target.dir>target</target.dir>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <hazelcast.version>3.6</hazelcast.version>
+        <version.grizzly>2.16</version.grizzly>
+        <version.jackson>2.3.2</version.jackson>
+        <curator.version>2.9.0</curator.version>
+
+
+        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.jar.plugin.version>2.4</maven.jar.plugin.version>
+        <maven.source.plugin.version>2.2.1</maven.source.plugin.version>
+        <maven.shade.plugin.version>2.4.1</maven.shade.plugin.version>
+        <mesos.version>0.22.1</mesos.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.mesos</groupId>
+            <artifactId>mesos</artifactId>
+            <version>${mesos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-zookeeper</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>${curator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>${curator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
+
+    </dependencies>
+
+</project>

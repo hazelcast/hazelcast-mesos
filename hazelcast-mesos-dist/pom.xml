@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>hazelcast-mesos</artifactId>
+        <groupId>com.hazelcast</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>hazelcast-mesos-dist</artifactId>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-mesos-executor</artifactId>
+            <version>1.0-SNAPSHOT</version>
+
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-mesos-scheduler</artifactId>
+            <version>1.0-SNAPSHOT</version>
+
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>download-hazelcast-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>http://download.hazelcast.com/download.jsp?version=hazelcast-${hazelcast.version}&amp;p=Mesos</url>
+                            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                            <outputFileName>hazelcast-${hazelcast.version}.zip</outputFileName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.hazelcast</groupId>
+                                    <artifactId>hazelcast-mesos-scheduler</artifactId>
+                                    <!--<classifier>jar-with-dependencies</classifier>-->
+                                    <destFileName>hazelcast-mesos-scheduler.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.hazelcast</groupId>
+                                    <artifactId>hazelcast-mesos-executor</artifactId>
+                                    <!--<classifier>jar-with-dependencies</classifier>-->
+                                    <destFileName>hazelcast-mesos-executor.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+        </plugins>
+    </build>
+
+
+</project>
