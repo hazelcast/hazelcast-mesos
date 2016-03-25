@@ -25,6 +25,7 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <timestamp>${maven.build.timestamp}</timestamp>
         <hazelcast.version>3.6</hazelcast.version>
+        <hazelcast-zookeeper.version>3.6.1</hazelcast-zookeeper.version>
         <version.grizzly>2.16</version.grizzly>
         <version.jackson>2.3.2</version.jackson>
         <curator.version>2.9.0</curator.version>
@@ -43,23 +44,6 @@
             <groupId>org.apache.mesos</groupId>
             <artifactId>mesos</artifactId>
             <version>${mesos.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-zookeeper</artifactId>
-            <version>3.6.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-test</artifactId>
-            <version>${curator.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-x-discovery</artifactId>
-            <version>${curator.version}</version>
         </dependency>
 
         <dependency>

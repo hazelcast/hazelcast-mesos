@@ -1,10 +1,9 @@
 import com.hazelcast.mesos.scheduler.HazelcastScheduler;
-import com.hazelcast.mesos.scheduler.rest.FileResourceController;
+import com.hazelcast.mesos.scheduler.rest.RestController;
 import java.net.URI;
 import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Protos.FrameworkInfo;
-import org.apache.mesos.Scheduler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -22,11 +21,10 @@ public class HazelcastMain {
         String hazelcastVersion = "3.6";
 
         URI httpServerURI = URI.create("http://" + host + ":" + port + "/");
+        HazelcastScheduler scheduler = new HazelcastScheduler(httpServerURI, 5);
 
+        initializeHttpServer(scheduler, hazelcastVersion, httpServerURI);
 
-        initializeHttpServer(hazelcastVersion, httpServerURI);
-
-        Scheduler scheduler = new HazelcastScheduler(httpServerURI);
         MesosSchedulerDriver driver = new MesosSchedulerDriver(scheduler, getFrameworkInfo(), MESOS_ZK);
 
         int status = driver.run() == Protos.Status.DRIVER_STOPPED ? 0 : 1;
@@ -35,10 +33,10 @@ public class HazelcastMain {
         System.exit(status);
     }
 
-    private static void initializeHttpServer(String hazelcastVersion, URI httpServerURI) {
+    private static void initializeHttpServer(HazelcastScheduler scheduler, String hazelcastVersion, URI httpServerURI) {
         final ResourceConfig resourceConfig = new ResourceConfig()
                 .registerInstances(
-                        new FileResourceController(hazelcastVersion)
+                        new RestController(scheduler, hazelcastVersion)
                 );
 
         GrizzlyHttpServerFactory.createHttpServer(httpServerURI, resourceConfig);
