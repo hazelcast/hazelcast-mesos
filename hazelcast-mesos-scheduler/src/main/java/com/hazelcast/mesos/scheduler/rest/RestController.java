@@ -1,7 +1,6 @@
 package com.hazelcast.mesos.scheduler.rest;
 
 import com.hazelcast.mesos.scheduler.HazelcastScheduler;
-import com.hazelcast.mesos.util.Util;
 import java.io.File;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -11,13 +10,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import static com.hazelcast.mesos.util.Util.workingDir;
+
 
 @Path("/")
 public final class RestController {
-    private final File hazelcastExecutorFile;
+    private final File hazelcastExecutorJar;
     private final File hazelcastZookeeperJar;
-    private final File jreTarFile;
-    private final File hazelcastTarFile;
+    private final File hazelcastZip;
     private final File hazelcastConfigurationFile;
     private final HazelcastScheduler scheduler;
 
@@ -25,30 +25,22 @@ public final class RestController {
         this.scheduler = scheduler;
         File f;
 
-        final String javaVersion = "7u76";
-        final String osName = Util.osFromSystemProperty();
-        final String providedJreTar = Util.option("JRE_FILE_PATH").or(Util.workingDir("/jre-" + javaVersion + '-' + osName + "-x64.tar.gz"));
-        f = new File(providedJreTar);
-//        verifyFileExistsAndCanRead(f);
-        jreTarFile = f;
-
-        final String providedHazelcastZip = Util.option("HAZELCAST_FILE_PATH").or(Util.workingDir("/hazelcast-" + hazelcastVersion + ".zip"));
-        f = new File(providedHazelcastZip);
+        final String hazelcastZipPath = workingDir("/hazelcast-" + hazelcastVersion + ".zip");
+        f = new File(hazelcastZipPath);
         verifyFileExistsAndCanRead(f);
-        hazelcastTarFile = f;
+        hazelcastZip = f;
 
-
-        final String executorFilePath = Util.option("EXECUTOR_FILE_PATH").or(Util.workingDir("/hazelcast-mesos-executor.jar"));
-        f = new File(executorFilePath);
+        final String executorJarPath = workingDir("/hazelcast-mesos-executor.jar");
+        f = new File(executorJarPath);
         verifyFileExistsAndCanRead(f);
-        hazelcastExecutorFile = f;
+        hazelcastExecutorJar = f;
 
-        final String zookeeperFilePath = Util.workingDir("/hazelcast-zookeeper.jar");
-        f = new File(zookeeperFilePath);
+        final String zookeeperJarPath = workingDir("/hazelcast-zookeeper.jar");
+        f = new File(zookeeperJarPath);
         verifyFileExistsAndCanRead(f);
         hazelcastZookeeperJar = f;
 
-        final String hazelcastConfigurationFilePath = Util.workingDir("/hazelcast.xml");
+        final String hazelcastConfigurationFilePath = workingDir("/hazelcast.xml");
         f = new File(hazelcastConfigurationFilePath);
         verifyFileExistsAndCanRead(f);
         hazelcastConfigurationFile = f;
@@ -57,7 +49,7 @@ public final class RestController {
     @GET
     @Path("/hazelcast-mesos-executor.jar")
     public Response hazelcastExecutorJar() {
-        return handleRequest(hazelcastExecutorFile, "application/java-archive", "hazelcast-mesos-executor.jar");
+        return handleRequest(hazelcastExecutorJar, "application/java-archive", "hazelcast-mesos-executor.jar");
     }
 
     @GET
@@ -67,15 +59,9 @@ public final class RestController {
     }
 
     @GET
-    @Path("/jre-{version}-{osname}.tar.gz")
-    public Response jreTar(@PathParam("version") final String version, @PathParam("osname") final String osname) {
-        return handleRequest(jreTarFile, "application/x-gzip", "jre.tar.gz");
-    }
-
-    @GET
     @Path("/hazelcast-{version}.zip")
     public Response hazelcastTar(@PathParam("version") final String version) {
-        return handleRequest(hazelcastTarFile, "application/zip", "hazelcast.zip");
+        return handleRequest(hazelcastZip, "application/zip", "hazelcast.zip");
     }
 
     @GET

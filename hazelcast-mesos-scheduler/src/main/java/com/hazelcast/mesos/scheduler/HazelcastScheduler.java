@@ -1,9 +1,8 @@
 package com.hazelcast.mesos.scheduler;
 
+import com.hazelcast.mesos.HazelcastMessages;
 import com.hazelcast.mesos.HazelcastNode;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -12,21 +11,28 @@ import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
 
+import static com.hazelcast.mesos.util.HazelcastProperties.getCpuPerNode;
+import static com.hazelcast.mesos.util.HazelcastProperties.getHazelcastVersion;
+import static com.hazelcast.mesos.util.HazelcastProperties.getMaxHeap;
+import static com.hazelcast.mesos.util.HazelcastProperties.getMemoryPerNode;
+import static com.hazelcast.mesos.util.HazelcastProperties.getMinHeap;
+import static com.hazelcast.mesos.util.HazelcastProperties.getNumberOfNodes;
 import static com.hazelcast.mesos.util.Util.command;
 import static com.hazelcast.mesos.util.Util.resource;
 import static com.hazelcast.mesos.util.Util.uris;
+import static java.util.Collections.singletonList;
 
 
 public class HazelcastScheduler implements Scheduler {
 
-    private URI httpServerURI;
+    private final URI httpServerURI;
     private volatile int targetNumberOfNodes;
 
     private Set<HazelcastNode> activeNodes = new HashSet<HazelcastNode>();
 
-    public HazelcastScheduler(URI httpServerURI, int targetNumberOfNodes) {
+    public HazelcastScheduler(URI httpServerURI) {
         this.httpServerURI = httpServerURI;
-        this.targetNumberOfNodes = targetNumberOfNodes;
+        this.targetNumberOfNodes = getNumberOfNodes();
     }
 
     @Override
@@ -45,8 +51,6 @@ public class HazelcastScheduler implements Scheduler {
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> list) {
         System.out.println("HazelcastScheduler.resourceOffers");
-        Collection<Protos.OfferID> accepted = new ArrayList<Protos.OfferID>();
-        Collection<Protos.TaskInfo> tasks = new ArrayList<Protos.TaskInfo>();
         System.out.println("targetNumberOfNodes = " + targetNumberOfNodes);
         System.out.println("currentNumberOfNodes = " + activeNodes.size());
         for (Protos.Offer offer : list) {
@@ -56,19 +60,32 @@ public class HazelcastScheduler implements Scheduler {
             System.out.println(activeNodes);
             if (needMoreNodes() && !slaveContainsHazelcastNode(slaveId)) {
                 System.out.println("launching executor on slaveId = " + slaveId);
-                accepted.add(offer.getId());
                 Protos.TaskID.Builder taskId = Protos.TaskID.newBuilder().setValue("node-" + slaveId.getValue());
+
+                HazelcastMessages.HazelcastServerProcessTask processTask = HazelcastMessages.HazelcastServerProcessTask
+                        .newBuilder()
+                        .setVersion(getHazelcastVersion())
+                        .addCommand("java")
+                        .addCommand("-server")
+                        .addCommand("-Xms" + getMinHeap())
+                        .addCommand("-Xmx" + getMaxHeap())
+                        .addCommand("-Djava.net.preferIPv4Stack=true")
+                        .addCommand("-cp")
+                        .addCommand("lib/hazelcast-all-" + getHazelcastVersion() + ".jar:../hazelcast-zookeeper.jar")
+                        .addCommand("com.hazelcast.core.server.StartServer")
+                        .build();
+
                 Protos.TaskInfo.Builder builder = Protos.TaskInfo.newBuilder()
                         .setSlaveId(slaveId)
                         .setName("hazelcast node")
-                        .addResources(resource("cpus", 0.1))
-                        .addResources(resource("mem", 512.0))
+                        .addResources(resource("cpus", getCpuPerNode()))
+                        .addResources(resource("mem", getMemoryPerNode()))
+                        .setData(processTask.toByteString())
                         .setTaskId(taskId);
 
                 Protos.ExecutorInfo executor = buildExecutor();
                 Protos.TaskInfo taskInfo = builder.setExecutor(executor).build();
-                tasks.add(taskInfo);
-                schedulerDriver.launchTasks(accepted, tasks);
+                schedulerDriver.launchTasks(singletonList(offer.getId()), singletonList(taskInfo));
                 HazelcastNode hazelcastNode = new HazelcastNode(offer.getHostname(), slaveId.getValue(), taskId.getValue());
                 activeNodes.add(hazelcastNode);
             } else if (needLessNodes() && slaveContainsHazelcastNode(slaveId)) {
@@ -114,7 +131,7 @@ public class HazelcastScheduler implements Scheduler {
                 .setExecutorId(Protos.ExecutorID.newBuilder().setValue("HazelcastExecutor - " + System.currentTimeMillis()))
                 .setCommand(command("java -cp hazelcast-mesos-executor.jar com.hazelcast.mesos.executor.HazelcastExecutor",
                         uris(
-                                getFileURI("hazelcast-3.6.zip"),
+                                getFileURI("hazelcast-" + getHazelcastVersion() + ".zip"),
                                 getFileURI("hazelcast-mesos-executor.jar"),
                                 getFileURI("hazelcast-zookeeper.jar"),
                                 getFileURI("hazelcast.xml")
@@ -143,7 +160,7 @@ public class HazelcastScheduler implements Scheduler {
         Protos.TaskStatus.Reason reason = taskStatus.getReason();
         if (state == Protos.TaskState.TASK_LOST && reason == Protos.TaskStatus.Reason.REASON_INVALID_OFFERS) {
             removeNodeFromActiveNodes(taskStatus.getTaskId());
-        } else if ( state == Protos.TaskState.TASK_FAILED) {
+        } else if (state == Protos.TaskState.TASK_FAILED) {
             removeNodeFromActiveNodes(taskStatus.getTaskId());
         }
 

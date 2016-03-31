@@ -1,12 +1,18 @@
 package com.hazelcast.mesos.executor;
 
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.hazelcast.mesos.HazelcastMessages.HazelcastServerProcessTask;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.mesos.Executor;
 import org.apache.mesos.ExecutorDriver;
 import org.apache.mesos.MesosExecutorDriver;
 import org.apache.mesos.Protos;
+
+import static com.hazelcast.mesos.HazelcastMessages.HazelcastServerProcessTask.parseFrom;
 
 public class HazelcastExecutor implements Executor {
     private Process process;
@@ -37,20 +43,30 @@ public class HazelcastExecutor implements Executor {
         System.out.println("HazelcastExecutor.launchTask");
         System.out.println("executorDriver = [" + executorDriver + "], taskInfo = [" + taskInfo + "]");
         executorId = taskInfo.getExecutor().getExecutorId();
-        final ProcessBuilder processBuilder = new ProcessBuilder("java",
-                "-server",
-                "-Djava.net.preferIPv4Stack=true",
-                "-Dhazelcast.config=" + System.getProperty("user.dir") + "/hazelcast.xml",
-                "-cp",
-                "lib/hazelcast-all-3.6.jar:../hazelcast-zookeeper.jar",
-                "com.hazelcast.core.server.StartServer"
+        HazelcastServerProcessTask processTask = null;
+        try {
+            processTask = parseFrom(taskInfo.getData());
+        } catch (InvalidProtocolBufferException e) {
+            System.out.println("e = " + e);
+            sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
+            return;
+        }
+
+        List<String> commandList = new ArrayList<String>(processTask.getCommandList());
+        commandList.add(commandList.size() - 3, "-Dhazelcast.config=" + System.getProperty("user.dir") + "/hazelcast.xml");
+        for (String s : commandList) {
+            System.out.println("s = " + s);
+        }
+        final ProcessBuilder processBuilder = new ProcessBuilder(
+                commandList
         )
-                .directory(new File(System.getProperty("user.dir") + "/hazelcast-3.6/"))
+                .directory(new File(System.getProperty("user.dir") + "/hazelcast-" + processTask.getVersion() + "/"))
                 .redirectOutput(new File("hazelcast.log"))
                 .redirectError(new File("hazelcast.err.log"));
         try {
             process = processBuilder.start();
         } catch (IOException e) {
+            System.out.println("e = " + e);
             sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
         }
 

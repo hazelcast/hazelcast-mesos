@@ -6,10 +6,6 @@ import org.apache.mesos.Protos;
 
 import static org.apache.mesos.Protos.Value.Type.SCALAR;
 
-/**
- * date: 3/4/16
- * author: emindemirci
- */
 public class Util {
 
     public static Protos.Resource resource(String name, Double value) {

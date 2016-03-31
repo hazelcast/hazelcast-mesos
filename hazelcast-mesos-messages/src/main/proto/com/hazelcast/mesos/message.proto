@@ -1,0 +1,19 @@
+package com.hazelcast.mesos;
+
+option java_outer_classname = "HazelcastMessages";
+
+message HazelcastServerProcessTask {
+    required string version = 1;
+    repeated string command = 2;
+    optional TaskEnv taskEnv = 3;
+}
+
+
+message TaskEnv {
+    message Entry {
+        required string name = 1;
+        required string value = 2;
+    }
+
+    repeated Entry variables = 1;
+}

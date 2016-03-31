@@ -30,6 +30,7 @@
     <management-center enabled="false">http://localhost:8080/mancenter</management-center>
     <properties>
         <property name="hazelcast.discovery.enabled">true</property>
+        <property name="hazelcast.rest.enabled">true</property>
     </properties>
 
     <network>
