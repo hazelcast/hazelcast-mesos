@@ -53,8 +53,21 @@ After that,
 ```
 curl -X POST http://localhost:8080/v2/apps -d @hazelcast.json -H "Content-type: application/json"
 ```
-- Open Marathon UI at `http://localhost:8080`. You should see the `hazelcast` application with status `running` .
+- Open Marathon UI at `http://localhost:8080`. You should see the `hazelcast` application with status `Running` .
 
+![Marathon](docs/marathon.png)
+
+- Open Mesos UI at `http://localhost:5050`. You should see the hazelcast tasks with state `RUNNING` .
+
+![Mesos](docs/tasks.png)
+
+- Click the `Sandbox` link to see working directory of the task.
+
+![Sandbox](docs/task.png)
+
+- You can have a look at the logs of the Hazelcast by clicking `hazelcast.log` or `hazelcast.err.log` links.
+
+![Logs](docs/logs.png)
 
 ##Configuration
 
