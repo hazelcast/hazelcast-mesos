@@ -1,9 +1,5 @@
 package com.hazelcast.mesos;
 
-/**
- * date: 3/25/16
- * author: emindemirci
- */
 public class HazelcastNode {
     String hostname;
     String slaveId;

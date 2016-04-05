@@ -20,34 +20,24 @@ public class HazelcastExecutor implements Executor {
 
     @Override
     public void registered(ExecutorDriver executorDriver, Protos.ExecutorInfo executorInfo, Protos.FrameworkInfo frameworkInfo, Protos.SlaveInfo slaveInfo) {
-        System.out.println("HazelcastExecutor.registered");
-        System.out.println("executorDriver = [" + executorDriver + "], executorInfo = [" + executorInfo + "], frameworkInfo = [" + frameworkInfo + "], slaveInfo = [" + slaveInfo + "]");
     }
 
     @Override
     public void reregistered(ExecutorDriver executorDriver, Protos.SlaveInfo slaveInfo) {
-        System.out.println("HazelcastExecutor.reregistered");
-        System.out.println("executorDriver = [" + executorDriver + "], slaveInfo = [" + slaveInfo + "]");
-
     }
 
     @Override
     public void disconnected(ExecutorDriver executorDriver) {
-        System.out.println("HazelcastExecutor.disconnected");
-        System.out.println("executorDriver = [" + executorDriver + "]");
-
     }
 
     @Override
     public void launchTask(ExecutorDriver executorDriver, Protos.TaskInfo taskInfo) {
-        System.out.println("HazelcastExecutor.launchTask");
-        System.out.println("executorDriver = [" + executorDriver + "], taskInfo = [" + taskInfo + "]");
         executorId = taskInfo.getExecutor().getExecutorId();
         HazelcastServerProcessTask processTask = null;
         try {
             processTask = parseFrom(taskInfo.getData());
         } catch (InvalidProtocolBufferException e) {
-            System.out.println("e = " + e);
+            System.out.println("Failed to read task details, " + e.getMessage());
             sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
             return;
         }
@@ -66,14 +56,17 @@ public class HazelcastExecutor implements Executor {
         try {
             process = processBuilder.start();
         } catch (IOException e) {
-            System.out.println("e = " + e);
+            System.out.println("Failed to start process, " + e.getMessage());
             sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
+            return;
         }
 
         try {
             Thread.sleep(5000);
-            process.exitValue();
+            int exitValue = process.exitValue();
+            System.out.println("Process exited with value ->, " + exitValue);
             sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
+            return;
         } catch (InterruptedException | IllegalThreadStateException e) {
         }
 
@@ -93,31 +86,24 @@ public class HazelcastExecutor implements Executor {
 
     @Override
     public void killTask(ExecutorDriver executorDriver, Protos.TaskID taskID) {
-        System.out.println("HazelcastExecutor.killTask");
-        System.out.println("executorDriver = [" + executorDriver + "], taskID = [" + taskID + "]");
-        process.destroy();
-        System.out.println("Node stop successfully.");
+        if (process != null) {
+            process.destroy();
+        }
+        System.out.println("Node with taskId = " + taskID + ", stopped successfully.");
         sendStatusUpdate(executorDriver, Protos.TaskState.TASK_KILLED, taskID, executorId);
     }
 
     @Override
     public void frameworkMessage(ExecutorDriver executorDriver, byte[] bytes) {
-        System.out.println("HazelcastExecutor.frameworkMessage");
-        System.out.println("executorDriver = [" + executorDriver + "], bytes = [" + bytes + "]");
-
     }
 
     @Override
     public void shutdown(ExecutorDriver executorDriver) {
-        System.out.println("HazelcastExecutor.shutdown");
-        System.out.println("executorDriver = [" + executorDriver + "]");
-
     }
 
     @Override
     public void error(ExecutorDriver executorDriver, String s) {
-        System.out.println("HazelcastExecutor.error");
-        System.out.println("executorDriver = [" + executorDriver + "], s = [" + s + "]");
+        System.out.println("HazelcastExecutor.error -> " + s);
 
     }
 

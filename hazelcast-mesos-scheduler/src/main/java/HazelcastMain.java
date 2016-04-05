@@ -1,6 +1,7 @@
 import com.hazelcast.mesos.scheduler.HazelcastScheduler;
 import com.hazelcast.mesos.scheduler.rest.RestController;
 import com.hazelcast.mesos.util.HazelcastProperties;
+import java.io.IOException;
 import java.net.URI;
 import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
@@ -12,7 +13,7 @@ public class HazelcastMain {
 
     private static final String FRAMEWORK_NAME = "Hazelcast Framework";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         String host = "localhost";
         String port = "8090";
@@ -20,7 +21,7 @@ public class HazelcastMain {
 
         HazelcastScheduler scheduler = new HazelcastScheduler(httpServerURI);
 
-        initializeHttpServer(scheduler, HazelcastProperties.getHazelcastVersion(), httpServerURI);
+        initializeHttpServer(scheduler, httpServerURI);
 
         MesosSchedulerDriver driver = new MesosSchedulerDriver(scheduler, getFrameworkInfo(), HazelcastProperties.getMesosZk());
 
@@ -30,10 +31,10 @@ public class HazelcastMain {
         System.exit(status);
     }
 
-    private static void initializeHttpServer(HazelcastScheduler scheduler, String hazelcastVersion, URI httpServerURI) {
+    private static void initializeHttpServer(HazelcastScheduler scheduler, URI httpServerURI) throws IOException {
         final ResourceConfig resourceConfig = new ResourceConfig()
                 .registerInstances(
-                        new RestController(scheduler, hazelcastVersion)
+                        new RestController(scheduler)
                 );
 
         GrizzlyHttpServerFactory.createHttpServer(httpServerURI, resourceConfig);
@@ -41,7 +42,7 @@ public class HazelcastMain {
 
     public static FrameworkInfo getFrameworkInfo() {
         FrameworkInfo.Builder builder = FrameworkInfo.newBuilder();
-        builder.setFailoverTimeout(120000);
+        builder.setFailoverTimeout(5);
         builder.setUser("");
         builder.setName(FRAMEWORK_NAME);
         return builder.build();

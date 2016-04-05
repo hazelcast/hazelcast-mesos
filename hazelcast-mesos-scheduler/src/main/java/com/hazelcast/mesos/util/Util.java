@@ -51,17 +51,4 @@ public class Util {
         return System.getProperty("user.dir") + defaultFileName;
     }
 
-    public static String osFromSystemProperty() {
-        final String osName = System.getProperty("os.name").toLowerCase();
-        final String os;
-        if (osName.contains("mac") || osName.contains("darwin")) {
-            os = "macosx";
-        } else if (osName.contains("linux")) {
-            os = "linux";
-        } else {
-            throw new IllegalArgumentException("Unknown OS " + osName);
-        }
-        return os;
-    }
-
 }

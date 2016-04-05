@@ -37,29 +37,18 @@ public class HazelcastScheduler implements Scheduler {
 
     @Override
     public void registered(SchedulerDriver schedulerDriver, Protos.FrameworkID frameworkID, Protos.MasterInfo masterInfo) {
-        System.out.println("HazelcastScheduler.registered");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], frameworkID = [" + frameworkID + "], masterInfo = [" + masterInfo + "]");
     }
 
     @Override
     public void reregistered(SchedulerDriver schedulerDriver, Protos.MasterInfo masterInfo) {
-        System.out.println("HazelcastScheduler.reregistered");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], masterInfo = [" + masterInfo + "]");
-
     }
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> list) {
-        System.out.println("HazelcastScheduler.resourceOffers");
-        System.out.println("targetNumberOfNodes = " + targetNumberOfNodes);
-        System.out.println("currentNumberOfNodes = " + activeNodes.size());
         for (Protos.Offer offer : list) {
             Protos.SlaveID slaveId = offer.getSlaveId();
-            System.out.println("slaveId = " + slaveId);
-            System.out.println("----");
-            System.out.println(activeNodes);
             if (needMoreNodes() && !slaveContainsHazelcastNode(slaveId)) {
-                System.out.println("launching executor on slaveId = " + slaveId);
+                System.out.println("Launching Hazelcast on slaveId = " + slaveId);
                 Protos.TaskID.Builder taskId = Protos.TaskID.newBuilder().setValue("node-" + slaveId.getValue());
 
                 HazelcastMessages.HazelcastServerProcessTask processTask = HazelcastMessages.HazelcastServerProcessTask
@@ -77,7 +66,7 @@ public class HazelcastScheduler implements Scheduler {
 
                 Protos.TaskInfo.Builder builder = Protos.TaskInfo.newBuilder()
                         .setSlaveId(slaveId)
-                        .setName("hazelcast node")
+                        .setName("Hazelcast node")
                         .addResources(resource("cpus", getCpuPerNode()))
                         .addResources(resource("mem", getMemoryPerNode()))
                         .setData(processTask.toByteString())
@@ -91,7 +80,7 @@ public class HazelcastScheduler implements Scheduler {
             } else if (needLessNodes() && slaveContainsHazelcastNode(slaveId)) {
                 Protos.TaskID taskID = Protos.TaskID.newBuilder().setValue("node-" + slaveId.getValue()).build();
                 schedulerDriver.killTask(taskID);
-                removeNodeFromActiveNodes(taskID);
+                removeNodeFromActiveNodesWithTaskID(taskID);
             } else {
                 schedulerDriver.declineOffer(offer.getId());
             }
@@ -106,7 +95,8 @@ public class HazelcastScheduler implements Scheduler {
         return activeNodes.size() < targetNumberOfNodes;
     }
 
-    private void removeNodeFromActiveNodes(Protos.TaskID taskID) {
+    private void removeNodeFromActiveNodesWithTaskID(Protos.TaskID taskID) {
+        System.out.println("Removing " + taskID + " from active nodes.");
         Iterator<HazelcastNode> iterator = activeNodes.iterator();
         while (iterator.hasNext()) {
             HazelcastNode node = iterator.next();
@@ -115,6 +105,18 @@ public class HazelcastScheduler implements Scheduler {
             }
         }
     }
+
+    private void removeNodeFromActiveNodesWithSlaveID(Protos.SlaveID slaveID) {
+        System.out.println("Removing " + slaveID + " from active nodes.");
+        Iterator<HazelcastNode> iterator = activeNodes.iterator();
+        while (iterator.hasNext()) {
+            HazelcastNode node = iterator.next();
+            if (node.getSlaveId().equals(slaveID.getValue())) {
+                iterator.remove();
+            }
+        }
+    }
+
 
     private boolean slaveContainsHazelcastNode(Protos.SlaveID slaveId) {
         for (HazelcastNode node : activeNodes) {
@@ -146,60 +148,42 @@ public class HazelcastScheduler implements Scheduler {
 
     @Override
     public void offerRescinded(SchedulerDriver schedulerDriver, Protos.OfferID offerID) {
-        System.out.println("HazelcastScheduler.offerRescinded");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], offerID = [" + offerID + "]");
-
     }
 
     @Override
     public void statusUpdate(SchedulerDriver schedulerDriver, Protos.TaskStatus taskStatus) {
-        System.out.println("HazelcastScheduler.statusUpdate");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], taskStatus = [" + taskStatus + "]");
-
         Protos.TaskState state = taskStatus.getState();
-        Protos.TaskStatus.Reason reason = taskStatus.getReason();
-        if (state == Protos.TaskState.TASK_LOST && reason == Protos.TaskStatus.Reason.REASON_INVALID_OFFERS) {
-            removeNodeFromActiveNodes(taskStatus.getTaskId());
-        } else if (state == Protos.TaskState.TASK_FAILED) {
-            removeNodeFromActiveNodes(taskStatus.getTaskId());
+        if (state == Protos.TaskState.TASK_LOST || state == Protos.TaskState.TASK_FAILED) {
+            removeNodeFromActiveNodesWithTaskID(taskStatus.getTaskId());
         }
 
     }
 
     @Override
     public void frameworkMessage(SchedulerDriver schedulerDriver, Protos.ExecutorID executorID, Protos.SlaveID slaveID, byte[] bytes) {
-        System.out.println("HazelcastScheduler.frameworkMessage");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], executorID = [" + executorID + "], slaveID = [" + slaveID + "], bytes = [" + bytes + "]");
-
     }
 
     @Override
     public void disconnected(SchedulerDriver schedulerDriver) {
-        System.out.println("HazelcastScheduler.disconnected");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "]");
-
     }
 
     @Override
     public void slaveLost(SchedulerDriver schedulerDriver, Protos.SlaveID slaveID) {
-        System.out.println("HazelcastScheduler.slaveLost");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], slaveID = [" + slaveID + "]");
+        removeNodeFromActiveNodesWithSlaveID(slaveID);
     }
 
     @Override
     public void executorLost(SchedulerDriver schedulerDriver, Protos.ExecutorID executorID, Protos.SlaveID slaveID, int i) {
-        System.out.println("HazelcastScheduler.executorLost");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], executorID = [" + executorID + "], slaveID = [" + slaveID + "], i = [" + i + "]");
-
+        removeNodeFromActiveNodesWithSlaveID(slaveID);
     }
 
     @Override
     public void error(SchedulerDriver schedulerDriver, String s) {
-        System.out.println("HazelcastScheduler.error");
-        System.out.println("schedulerDriver = [" + schedulerDriver + "], s = [" + s + "]");
+        System.out.println("HazelcastScheduler.error -> " + s);
     }
 
     public void setTargetNumberOfNodes(int targetNumberOfNodes) {
         this.targetNumberOfNodes = targetNumberOfNodes;
+        System.out.println("Current number of nodes = " + activeNodes.size() + ", new target number of nodes = " + targetNumberOfNodes);
     }
 }
