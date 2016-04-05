@@ -48,7 +48,7 @@ public class HazelcastScheduler implements Scheduler {
         for (Protos.Offer offer : list) {
             Protos.SlaveID slaveId = offer.getSlaveId();
             if (needMoreNodes() && !slaveContainsHazelcastNode(slaveId)) {
-                System.out.println("Launching Hazelcast on slaveId = " + slaveId);
+                System.out.println("Launching Hazelcast on slaveId = " + slaveId.getValue());
                 Protos.TaskID.Builder taskId = Protos.TaskID.newBuilder().setValue("node-" + slaveId.getValue());
 
                 HazelcastMessages.HazelcastServerProcessTask processTask = HazelcastMessages.HazelcastServerProcessTask
@@ -60,7 +60,7 @@ public class HazelcastScheduler implements Scheduler {
                         .addCommand("-Xmx" + getMaxHeap())
                         .addCommand("-Djava.net.preferIPv4Stack=true")
                         .addCommand("-cp")
-                        .addCommand("lib/hazelcast-all-" + getHazelcastVersion() + ".jar:../hazelcast-zookeeper.jar")
+                        .addCommand("hazelcast-" + getHazelcastVersion() + ".jar:hazelcast-zookeeper.jar")
                         .addCommand("com.hazelcast.core.server.StartServer")
                         .build();
 
@@ -96,7 +96,7 @@ public class HazelcastScheduler implements Scheduler {
     }
 
     private void removeNodeFromActiveNodesWithTaskID(Protos.TaskID taskID) {
-        System.out.println("Removing " + taskID + " from active nodes.");
+        System.out.println("Removing " + taskID.getValue() + " from active nodes.");
         Iterator<HazelcastNode> iterator = activeNodes.iterator();
         while (iterator.hasNext()) {
             HazelcastNode node = iterator.next();
@@ -107,7 +107,7 @@ public class HazelcastScheduler implements Scheduler {
     }
 
     private void removeNodeFromActiveNodesWithSlaveID(Protos.SlaveID slaveID) {
-        System.out.println("Removing " + slaveID + " from active nodes.");
+        System.out.println("Removing " + slaveID.getValue() + " from active nodes.");
         Iterator<HazelcastNode> iterator = activeNodes.iterator();
         while (iterator.hasNext()) {
             HazelcastNode node = iterator.next();
@@ -133,7 +133,7 @@ public class HazelcastScheduler implements Scheduler {
                 .setExecutorId(Protos.ExecutorID.newBuilder().setValue("HazelcastExecutor - " + System.currentTimeMillis()))
                 .setCommand(command("java -cp hazelcast-mesos-executor.jar com.hazelcast.mesos.executor.HazelcastExecutor",
                         uris(
-                                getFileURI("hazelcast-" + getHazelcastVersion() + ".zip"),
+                                getFileURI("hazelcast-" + getHazelcastVersion() + ".jar"),
                                 getFileURI("hazelcast-mesos-executor.jar"),
                                 getFileURI("hazelcast-zookeeper.jar"),
                                 getFileURI("hazelcast.xml")

@@ -19,7 +19,7 @@ import static com.hazelcast.mesos.util.Util.workingDir;
 public final class RestController {
     private final File hazelcastExecutorJar;
     private final File hazelcastZookeeperJar;
-    private final File hazelcastZip;
+    private final File hazelcastJar;
     private final File hazelcastConfigurationFile;
     private final HazelcastScheduler scheduler;
     private final HazelcastDownloader downloader;
@@ -29,15 +29,15 @@ public final class RestController {
         this.downloader = new HazelcastDownloader();
         File f;
 
-        final String hazelcastZipPath = workingDir("/hazelcast-" +  HazelcastProperties.getHazelcastVersion() + ".zip");
-        f = new File(hazelcastZipPath);
+        final String hazelcastJarPath = workingDir("/hazelcast-" + HazelcastProperties.getHazelcastVersion() + ".jar");
+        f = new File(hazelcastJarPath);
         if (!isFileExistsAndCanRead(f)) {
-            System.out.println("Hazelcast distribution not found at the " + hazelcastZipPath + " , downloading from web.");
-            downloader.download(hazelcastZipPath);
-            f = new File(hazelcastZipPath);
+            System.out.println("Hazelcast distribution not found at the " + hazelcastJarPath + " , downloading from web.");
+            downloader.download(hazelcastJarPath);
+            f = new File(hazelcastJarPath);
             verifyFileExistsAndCanRead(f);
         }
-        hazelcastZip = f;
+        hazelcastJar = f;
 
         final String executorJarPath = workingDir("/hazelcast-mesos-executor.jar");
         f = new File(executorJarPath);
@@ -68,9 +68,9 @@ public final class RestController {
     }
 
     @GET
-    @Path("/hazelcast-{version}.zip")
-    public Response hazelcastZip(@PathParam("version") final String version) {
-        return handleRequest(hazelcastZip, "application/zip", "hazelcast.zip");
+    @Path("/hazelcast-{version}.jar")
+    public Response hazelcastJar(@PathParam("version") final String version) {
+        return handleRequest(hazelcastJar, "application/java-archive", "hazelcast-" + version + ".jar");
     }
 
     @GET

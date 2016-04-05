@@ -9,13 +9,9 @@ You need to have a running Mesos cluster to deploy Hazelcast to it. To install a
 
 - Download the Hazelcast-Mesos package from `http://link`
 - Extract the archive
-- Set Zookeeper address which mesos uses by
-```
-export MESOS_ZK="zk://<mesos-zookeeper-address>"
-```
 - Run the scheduler by issuing the command below
 ```
-java -cp hazelcast-mesos-scheduler.jar HazelcastMain
+sh start.sh
 ```
 The scheduler will pull the Hazelcast binaries from web and distribute it to Mesos slaves and starts the Hazelcast nodes. Hazelcast Scheduler will place one Hazelcast member per Mesos slave.
 
@@ -58,3 +54,7 @@ After that,
 curl -X POST http://localhost:8080/v2/apps -d @hazelcast.json -H "Content-type: application/json"
 ```
 - Open Marathon UI at `http://localhost:8080`. You should see the `hazelcast` application with status `running` .
+
+
+##Configuration
+

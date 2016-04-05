@@ -50,7 +50,7 @@ public class HazelcastExecutor implements Executor {
         final ProcessBuilder processBuilder = new ProcessBuilder(
                 commandList
         )
-                .directory(new File(System.getProperty("user.dir") + "/hazelcast-" + processTask.getVersion() + "/"))
+                .directory(new File(System.getProperty("user.dir")))
                 .redirectOutput(new File("hazelcast.log"))
                 .redirectError(new File("hazelcast.err.log"));
         try {
@@ -64,7 +64,7 @@ public class HazelcastExecutor implements Executor {
         try {
             Thread.sleep(5000);
             int exitValue = process.exitValue();
-            System.out.println("Process exited with value ->, " + exitValue);
+            System.out.println("Process exited with value -> " + exitValue);
             sendStatusUpdate(executorDriver, Protos.TaskState.TASK_FAILED, taskInfo.getTaskId(), executorId);
             return;
         } catch (InterruptedException | IllegalThreadStateException e) {
@@ -89,7 +89,7 @@ public class HazelcastExecutor implements Executor {
         if (process != null) {
             process.destroy();
         }
-        System.out.println("Node with taskId = " + taskID + ", stopped successfully.");
+        System.out.println("Node with taskId = " + taskID.getValue() + ", stopped successfully.");
         sendStatusUpdate(executorDriver, Protos.TaskState.TASK_KILLED, taskID, executorId);
     }
 

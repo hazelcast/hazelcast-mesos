@@ -11,7 +11,7 @@ import static com.hazelcast.mesos.util.HazelcastProperties.getHazelcastVersion;
 
 public class HazelcastDownloader {
 
-    private static final String DOWNLOAD_URL = "http://download.hazelcast.com/download.jsp?version=hazelcast-" + getHazelcastVersion() + "&p=Mesos";
+    private static final String DOWNLOAD_URL = "http://repo2.maven.org/maven2/com/hazelcast/hazelcast-all/" + getHazelcastVersion() + "/hazelcast-all-" + getHazelcastVersion() + ".jar";
 
     public HazelcastDownloader() {
     }
