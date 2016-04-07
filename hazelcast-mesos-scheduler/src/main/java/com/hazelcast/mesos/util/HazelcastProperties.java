@@ -5,6 +5,8 @@ import static java.lang.Integer.parseInt;
 
 public class HazelcastProperties {
     static String HAZELCAST_VERSION = option("HAZELCAST_VERSION").or("3.6");
+    static String HOST = option("HOST").or("localhost");
+    static String PORT = option("PORT").or("8090");
     static String MESOS_ZK = option("MESOS_ZK").or("zk://localhost:2181/mesos");
     static String MIN_HEAP = option("MIN_HEAP").or("1g");
     static String MAX_HEAP = option("MAX_HEAP").or("1g");
@@ -38,5 +40,13 @@ public class HazelcastProperties {
 
     public static int getNumberOfNodes() {
         return NUMBER_OF_NODES;
+    }
+
+    public static String getHOST() {
+        return HOST;
+    }
+
+    public static String getPORT() {
+        return PORT;
     }
 }

@@ -22,6 +22,8 @@ cd hazelcast-mesos
 #!/usr/bin/env bash
 
 export HAZELCAST_VERSION=3.6
+export HOST="localhost"
+export PORT="8090"
 export MESOS_ZK="zk://localhost:2181/mesos"
 export MIN_HEAP="1g"
 export MAX_HEAP="1g"
@@ -61,10 +63,15 @@ After that,
     0
   ],
   "env": {
+    "HAZELCAST_VERSION": "3.6",
+    "HOST": "localhost",
+    "PORT": "8090",
     "MESOS_ZK": "zk://localhost:2181/mesos",
     "MIN_HEAP": "1g",
     "MAX_HEAP": "1g",
-    "NUMBER_OF_NODES":"3"
+    "CPU_PER_NODE": "1.0",
+    "MEMORY_PER_NODE": "512.0",
+    "NUMBER_OF_NODES": "3"
   },
   "cmd": "cd hazelcast-mesos && java -cp hazelcast-mesos-scheduler.jar HazelcastMain",
   "uris": [

@@ -7,14 +7,19 @@
     0
   ],
   "env": {
+    "HAZELCAST_VERSION": "3.6",
+    "HOST": "localhost",
+    "PORT": "8090",
     "MESOS_ZK": "zk://localhost:2181/mesos",
     "MIN_HEAP": "1g",
     "MAX_HEAP": "1g",
+    "CPU_PER_NODE": "1.0",
+    "MEMORY_PER_NODE": "512.0",
     "NUMBER_OF_NODES": "3"
   },
-  "cmd": "java -classpath hazelcast-mesos-scheduler.jar HazelcastMain",
+  "cmd": "cd hazelcast-mesos && java -cp hazelcast-mesos-scheduler.jar HazelcastMain",
   "uris": [
-    "https://s3.amazonaws.com/hazelcast/mesos/hazelcast-mesos.zip"
+    "https://s3.amazonaws.com/hazelcast/mesos/hazelcast-mesos-1.0-SNAPSHOT.tar.gz"
   ]
 }
 

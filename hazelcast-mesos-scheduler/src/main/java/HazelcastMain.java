@@ -1,6 +1,5 @@
 import com.hazelcast.mesos.scheduler.HazelcastScheduler;
 import com.hazelcast.mesos.scheduler.rest.RestController;
-import com.hazelcast.mesos.util.HazelcastProperties;
 import java.io.IOException;
 import java.net.URI;
 import org.apache.mesos.MesosSchedulerDriver;
@@ -9,21 +8,23 @@ import org.apache.mesos.Protos.FrameworkInfo;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import static com.hazelcast.mesos.util.HazelcastProperties.getHOST;
+import static com.hazelcast.mesos.util.HazelcastProperties.getMesosZk;
+import static com.hazelcast.mesos.util.HazelcastProperties.getPORT;
+
 public class HazelcastMain {
 
     private static final String FRAMEWORK_NAME = "Hazelcast Framework";
 
     public static void main(String[] args) throws IOException {
 
-        String host = "localhost";
-        String port = "8090";
-        URI httpServerURI = URI.create("http://" + host + ":" + port + "/");
+        URI httpServerURI = URI.create("http://" + getHOST() + ":" + getPORT() + "/");
 
         HazelcastScheduler scheduler = new HazelcastScheduler(httpServerURI);
 
         initializeHttpServer(scheduler, httpServerURI);
 
-        MesosSchedulerDriver driver = new MesosSchedulerDriver(scheduler, getFrameworkInfo(), HazelcastProperties.getMesosZk());
+        MesosSchedulerDriver driver = new MesosSchedulerDriver(scheduler, getFrameworkInfo(), getMesosZk());
 
         int status = driver.run() == Protos.Status.DRIVER_STOPPED ? 0 : 1;
         driver.stop();

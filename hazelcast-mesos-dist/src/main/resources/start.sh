@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 export HAZELCAST_VERSION=3.6
+export HOST="localhost"
+export PORT="8090"
 export MESOS_ZK="zk://localhost:2181/mesos"
 export MIN_HEAP="1g"
 export MAX_HEAP="1g"
