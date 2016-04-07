@@ -70,7 +70,8 @@ After that,
   "uris": [
     "https://s3.amazonaws.com/hazelcast/mesos/hazelcast-mesos-1.0-SNAPSHOT.tar.gz"
   ]
-}```
+}
+```
 - Initiate POST request to Marathon REST API via issuing the command below
 ```bash
 curl -X POST http://localhost:8080/v2/apps -d @hazelcast.json -H "Content-type: application/json"
