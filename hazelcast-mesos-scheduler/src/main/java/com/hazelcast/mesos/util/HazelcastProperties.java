@@ -11,7 +11,7 @@ public class HazelcastProperties {
     static String MIN_HEAP = option("MIN_HEAP").or("1g");
     static String MAX_HEAP = option("MAX_HEAP").or("1g");
     static Double CPU_PER_NODE = Double.parseDouble(option("CPU_PER_NODE").or("1.0"));
-    static Double MEMORY_PER_NODE = Double.parseDouble(option("MEMORY_PER_NODE").or("512.0"));
+    static Double MEMORY_PER_NODE = Double.parseDouble(option("MEMORY_PER_NODE").or("1024.0"));
     static int NUMBER_OF_NODES = parseInt(option("NUMBER_OF_NODES").or("1"));
 
     public static String getHazelcastVersion() {
