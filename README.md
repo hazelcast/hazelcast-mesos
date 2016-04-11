@@ -1,27 +1,31 @@
 ## Warning
-This is an early version of Hazelcast Mesos integration. Anything in this project may change without notice and/or break older installations
+This is an early version of Hazelcast Mesos integration. Anything in this project may change without notice and/or break older installations.
 
 # Hazelcast Mesos
 
-This module gives you an ability to deploy Hazelcast in the Mesos cluster.
+This module gives you the ability to deploy Hazelcast on the Mesos cluster.
 
 ## Prerequisites
-- A running Mesos cluster to deploy Hazelcast to it. To install and run the Apache Mesos please refer to http://mesos.apache.org/gettingstarted/
-- Java needs to be installed and configured on Mesos slaves.
 
-## Running Hazelcast-Mesos via command line
-You can deploy Hazelcast on Mesos via command line by running the Hazelcast Scheduler.
+- A running Mesos cluster to deploy Hazelcast on it. For information on installing and running Apache Mesos, please refer to http://mesos.apache.org/gettingstarted/.
+- Java needs to be installed and configured on the Mesos slaves.
 
-- Download the Hazelcast-Mesos package from `http://link`
-- Extract the archive
+## Running Hazelcast Mesos via Command Line
+
+You can deploy Hazelcast on Mesos via command line by running the Hazelcast Scheduler. Please perform the following steps:
+
+- Download the Hazelcast Mesos package from `http://link`.
+- Extract the archive:
+
 ```bash
 tar -zxvf hazelcast-mesos-0.1.tar.gz
 ```
-- Navigate to `hazelcast-mesos-0.1`
+- Navigate to `hazelcast-mesos-0.1`:
+
 ```bash
 cd hazelcast-mesos-0.1
 ```
-- Open the `start.sh` in the text editor and edit the configuration parameters as your needs
+- Open the `start.sh` in the text editor and edit the configuration parameters according to your needs:
 
 ```bash
 #!/usr/bin/env bash
@@ -38,28 +42,33 @@ export NUMBER_OF_NODES=1
 
 java -cp hazelcast-mesos-scheduler.jar HazelcastMain
 ```
-- Run the scheduler by issuing the command below
+- Run the scheduler:
+
 ```bash
 sh start.sh
 ```
-- Open Mesos UI at `http://localhost:5050`. You should see the hazelcast tasks with state `RUNNING` .
+- Open the Mesos UI at `http://localhost:5050`. You should see the Hazelcast tasks with state `RUNNING` .
 
 
-The scheduler will pull the Hazelcast binaries from web and distribute it to Mesos slaves and starts the Hazelcast nodes. **Hazelcast Scheduler will place only one Hazelcast member per Mesos slave.**
+The scheduler will pull the Hazelcast binaries from web and distribute it to Mesos slaves and start the Hazelcast nodes. **Hazelcast Scheduler will place only one Hazelcast member per Mesos slave.**
 
-You can control cluster size of the Hazelcast via the REST API it provides.
-For example, to scale Hazelcast cluster to 5 nodes issue the following command.
+You can control the cluster size of Hazelcast via the REST API it provides.
+For example, to scale Hazelcast cluster to 5 nodes, run the following command:
+
 ```bash
 curl -X POST http://localhost:8090/nodes?nodeCount=5
 ```
 
-## Running Hazelcast-Mesos via Marathon
-You can deploy Hazelcast on Mesos via Marahton.
+## Running Hazelcast Mesos via Marathon
 
-To install Marathon, you can refer to https://docs.mesosphere.com/getting-started/datacenter/install/.
+You can deploy Hazelcast on Mesos via Marathon.
 
-After that,
-- Save the following JSON as `hazelcast.json`
+For information on installing Marathon, please refer to https://docs.mesosphere.com/getting-started/datacenter/install/.
+
+After you install Marathon, please perform the following steps:
+
+- Save the following JSON as `hazelcast.json`:
+
 ```json
 {
   "id": "/hazelcast",
@@ -86,29 +95,30 @@ After that,
   ]
 }
 ```
-- Initiate POST request to Marathon REST API via issuing the command below
+- Initiate a POST request to Marathon REST API:
+
 ```bash
 curl -X POST http://localhost:8080/v2/apps -d @hazelcast.json -H "Content-type: application/json"
 ```
-- Open Marathon UI at `http://localhost:8080`. You should see the `hazelcast` application with status `Running` .
+- Open the Marathon UI at `http://localhost:8080`. You should see the `hazelcast` application with state `Running`:
 
 ![Marathon](images/marathon.png)
 
-- Open Mesos UI at `http://localhost:5050`. You should see the hazelcast tasks with state `RUNNING` .
+- Open the Mesos UI at `http://localhost:5050`. You should see the Hazelcast tasks with state `RUNNING`:
 
 ![Mesos](images/tasks.png)
 
-- Click the `Sandbox` link to see working directory of the task.
+- Click the `Sandbox` link to see the working directory of task:
 
 ![Sandbox](images/task.png)
 
-- You can have a look at the logs of the Hazelcast by clicking `hazelcast.log` or `hazelcast.err.log` links.
+- You can have a look at the logs of Hazelcast by clicking on the `hazelcast.log` or `hazelcast.err.log` links.
 
 ![Logs](images/logs.png)
 
 ## Configuration
 
-You can pass environment variables to configure Hazelcast Mesos integration. You can either pass those environment variables in the Marathon recipe or in the `start.sh`.
+You can pass environment variables to configure Hazelcast Mesos integration. You can pass those environment variables either in the Marathon recipe or in the `start.sh`.
 
 | Variable Name  | Default Value   | Description   |
 |---|---|---|
