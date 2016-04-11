@@ -99,4 +99,18 @@ curl -X POST http://localhost:8080/v2/apps -d @hazelcast.json -H "Content-type: 
 
 ![Logs](docs/logs.png)
 
-##Configuration
+## Configuration
+
+You can pass environment variables to configure Hazelcast Mesos integration. You can either pass those environment variables in the Marathon recipe or in the `start.sh`.
+
+| Variable Name  | Default Value   | Description   |
+|---|---|---|
+| HAZELCAST_VERSION  |  3.6  |  To be deployed distribution version of hazelcast.  |
+| HOST  | localhost   | Internal web server host which Hazelcast Scheduler uses for file distribution to Mesos Slaves.  |   
+| PORT  | 8090 | Internal web server port which Hazelcast Scheduler uses for file distribution to Mesos Slaves.  | 
+| MESOS_ZK | zk://localhost:2181/mesos | ZooKeeper address which Mesos Master uses for coordination |
+| MIN_HEAP | 1g | Java minimum heap size for the JVM which Hazelcast instance lives on the Mesos Slave.|  
+| MAX_HEAP | 1g | Java maximum heap size for the JVM which Hazelcast instance lives on the Mesos Slave. |
+| CPU_PER_NODE | 1.0 | Number of CPU units to be used for each Hazelcast instance deployment on the Mesos Slaves. |
+| MEMORY_PER_NODE | 1024.0 | Amount of Memory units to be used for each Hazelcast instance deployment on the Mesos Slaves. |   
+| NUMBER_OF_NODES | 3 | Size of the Hazelcast cluster.|    
