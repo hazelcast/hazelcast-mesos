@@ -44,9 +44,6 @@ public class HazelcastExecutor implements Executor {
 
         List<String> commandList = new ArrayList<String>(processTask.getCommandList());
         commandList.add(commandList.size() - 3, "-Dhazelcast.config=" + System.getProperty("user.dir") + "/hazelcast.xml");
-        for (String s : commandList) {
-            System.out.println("s = " + s);
-        }
         final ProcessBuilder processBuilder = new ProcessBuilder(
                 commandList
         )
