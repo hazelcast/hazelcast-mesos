@@ -8,7 +8,6 @@
   ],
   "env": {
     "HAZELCAST_VERSION": "3.6",
-    "HOST": "localhost",
     "PORT": "8090",
     "MESOS_ZK": "zk://localhost:2181/mesos",
     "MIN_HEAP": "1g",
