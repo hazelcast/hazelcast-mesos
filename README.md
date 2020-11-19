@@ -1,9 +1,9 @@
-## Warning
-This is an early version of Hazelcast Mesos integration. Anything in this project may change without notice and/or break older installations.
-
-# Hazelcast Mesos
+# DEPRECATED - Hazelcast Mesos
 
 This module gives you the ability to deploy Hazelcast on the Mesos cluster.
+
+## Warning
+This is an early version of Hazelcast Mesos integration. Anything in this project may change without notice and/or break older installations.
 
 ## Prerequisites
 
